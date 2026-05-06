@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="tr" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threello Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <style>
+        * { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* ── Drag ── */
+        .dragging { opacity: 0.4; transform: rotate(2deg) scale(1.02); }
+
+        /* ── Board Background ── */
+        /* LIGHT */
+        #board {
+            background-color: #f1f5f9;
+            background-image: radial-gradient(circle at 30% 40%, rgba(238,174,202,0.5) 0%, rgba(148,187,233,0.4) 60%, rgba(180,210,255,0.3) 100%);
+        }
+        /* DARK */
+        .dark #board {
+            background-color: #04113c;
+            background-image: radial-gradient(circle, rgba(0, 21, 255, 1) 0%, rgba(37, 92, 13, 1) 100%);
+        }
+
+        /* ── Calendar & Upcoming Background ── */
+        /* LIGHT */
+        #calendar-view, #upcoming-view {
+            background-color: #f1f5f9;
+            background-image: radial-gradient(circle at 70% 60%, rgba(238,174,202,0.45) 0%, rgba(148,187,233,0.35) 60%, transparent 100%);
+        }
+        /* DARK */
+        .dark #calendar-view, .dark #upcoming-view {
+            background-color: #04113c;
+            background-image: radial-gradient(circle, rgba(0, 21, 255, 1) 0%, rgba(37, 92, 13, 1) 100%);
+        }
+
+        /* ── Stats Bar ── */
+        /* LIGHT */
+        #stats-bar {
+            background: linear-gradient(90deg, rgba(238,174,202,0.6) 0%, rgba(148,187,233,0.6) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        /* DARK */
+        .dark #stats-bar {
+            background: linear-gradient(90deg, rgba(0, 21, 255, 0.4) 0%, rgba(37, 92, 13, 0.45) 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        /* ── Card ── */
+        .card { transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: grab; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .card:active { cursor: grabbing; }
+        .card.completed { opacity: 0.55; }
+        .card.completed .card-text { text-decoration: line-through; }
+
+        /* ── Dark Mode Toggle ── */
+        .switch-bg {
+            width: 46px; height: 24px; background: #cbd5e1;
+            border-radius: 50px; position: relative; cursor: pointer; transition: 0.3s;
+        }
+        .switch-circle {
+            width: 18px; height: 18px; background: white;
+            border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s;
+        }
+        .dark .switch-bg { background: #6366f1; }
+        .dark .switch-circle { transform: translateX(22px); }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { height: 6px; width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+
+        /* ── Calendar ── */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .calendar-day {
+            min-height: 110px; padding: 8px; border-radius: 12px;
+            transition: border-color 0.2s, background 0.2s;
+            border: 1px solid transparent;
+        }
+        /* LIGHT calendar day */
+        .calendar-day {
+            background: rgba(255,255,255,0.75);
+            border-color: rgba(148,187,233,0.4);
+            backdrop-filter: blur(4px);
+        }
+        .calendar-day:hover { border-color: #818cf8 !important; background: rgba(255,255,255,0.95) !important; }
+        /* DARK calendar day */
+        .dark .calendar-day {
+            background: rgba(30,41,59,0.7);
+            border-color: rgba(99,102,241,0.2);
+        }
+        .dark .calendar-day:hover { border-color: #818cf8 !important; background: rgba(30,41,59,0.95) !important; }
+
+        .calendar-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+
+        /* ── Team Dropdown ── */
+        #team-dropdown {
+            display: none; position: absolute; left: 0; top: calc(100% + 8px);
+            width: 290px; border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            z-index: 200; padding: 16px;
+        }
+        #team-dropdown.open { display: block; }
+        /* LIGHT */
+        #team-dropdown { background: white; border: 1px solid #e2e8f0; }
+        /* DARK */
+        .dark #team-dropdown { background: #1e293b; border-color: #334155; }
+
+        /* ── Profile Dropdown ── */
+        .profile-dropdown {
+            display: none; position: absolute; right: 0; top: calc(100% + 8px);
+            width: 196px; border-radius: 14px; padding: 6px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12); z-index: 200;
+        }
+        .profile-dropdown.open { display: block; }
+        /* LIGHT */
+        .profile-dropdown { background: white; border: 1px solid #e2e8f0; }
+        /* DARK */
+        .dark .profile-dropdown { background: #1e293b; border-color: #334155; }
+
+        /* ── Stat Card ── */
+        .stat-card {
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+        .dark .stat-card {
+            background: rgba(15,23,42,0.55);
+            border-color: rgba(255,255,255,0.07);
+        }
+
+        /* ── Toast ── */
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            background: #1e293b; color: white; padding: 12px 18px;
+            border-radius: 12px; font-size: 13px; font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            animation: toastIn 0.3s ease, toastOut 0.4s ease 3.4s forwards;
+        }
+        .dark .toast { background: #0f172a; border: 1px solid #334155; }
+        @keyframes toastIn  { from { transform: translateX(80px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* ── Member chip ── */
+        .member-chip { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; cursor: pointer; transition: background 0.15s; }
+        .member-chip:hover { background: #f1f5f9; }
+        .dark .member-chip:hover { background: #334155; }
+
+        /* ── Upcoming item urgency ── */
+        .urgency-high  { background: #fef2f2; border-color: #fecaca; }
+        .urgency-med   { background: #fffbeb; border-color: #fde68a; }
+        .urgency-low   { background: rgba(255,255,255,0.75); border-color: rgba(148,187,233,0.4); }
+        .dark .urgency-high  { background: rgba(220,38,38,0.1); border-color: rgba(220,38,38,0.25); }
+        .dark .urgency-med   { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
+        .dark .urgency-low   { background: rgba(30,41,59,0.7); border-color: rgba(99,102,241,0.2); }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            #team-dropdown { width: min(92vw, 290px); }
+        }
+
+        @media (max-width: 768px) {
+            #navbar { padding: 10px 12px; }
+            #navbar, #navbar > div { overflow: visible; }
+            #board, #calendar-view, #upcoming-view { padding: 12px; }
+            #stats-bar { padding: 10px 12px; gap: 8px; }
+            .stat-card { min-width: 118px; padding: 10px; }
+            .calendar-day { min-height: 86px; }
+            .list, #add-list-btn { width: min(85vw, 320px) !important; }
+        }
+
+        @media (max-width: 480px) {
+            body { min-height: 100vh; }
+            #navbar { gap: 8px; }
+            #navbar .text-lg { font-size: 15px; }
+            #stats-bar { padding: 8px 10px; gap: 6px; }
+            .stat-card { min-width: 106px; padding: 8px; }
+            .list, #add-list-btn { width: calc(100vw - 26px) !important; }
+            #team-dropdown { width: calc(100vw - 26px); }
+            .profile-dropdown {
+                width: min(220px, calc(100vw - 26px));
+                right: 0;
+            }
+            .profile-dropdown button {
+                font-size: 12px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .calendar-day { min-height: 78px; padding: 6px; }
+            #toast-container { right: 12px; left: 12px; bottom: 14px; }
+            .toast { width: 100%; }
+        }
+    </style>
+</head>
+<body class="min-h-screen md:h-screen flex flex-col overflow-auto md:overflow-hidden transition-colors duration-300 bg-slate-100 dark:bg-slate-950">
+
+<!-- Toast -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════ -->
+<nav id="navbar" class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-5 py-3 flex flex-wrap justify-between items-start sm:items-center z-50 gap-3">
+
+    <!-- Sol -->
+    <div class="flex items-center gap-3 flex-wrap min-w-0">
+        <span class="text-lg font-black text-indigo-600 tracking-tight shrink-0">⚡ Threello Pro</span>
+
+        <!-- Board Seçici -->
+        <button onclick="openBoardModal()" class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-2 rounded-xl text-sm transition shrink-0">
+            <i data-lucide="layout" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
+            <span id="current-board-name" class="font-bold text-slate-700 dark:text-slate-200 max-w-[120px] truncate">Yükleniyor...</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+
+        <!-- Görünüm Tabs -->
+        <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-1 flex gap-1">
+            <button onclick="switchView('board')" id="btn-board" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-700 shadow-sm transition">
+                <i data-lucide="layout-kanban" class="w-3 h-3 inline mr-1"></i>Board
+            </button>
+            <button onclick="switchView('calendar')" id="btn-calendar" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-white/50 dark:hover:bg-slate-700/50 transition">
+                <i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>Takvim
+            </button>
+            <button onclick="switchView('upcoming')" id="btn-upcoming" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-white/50 dark:hover:bg-slate-700/50 transition relative">
+                <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i>Yaklaşan
+                <span id="upcoming-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full hidden items-center justify-center font-bold">0</span>
+            </button>
+        </div>
+
+        <!-- Takım Üyesi Seçici -->
+        <div class="relative shrink-0" id="team-menu-wrapper">
+            <button onclick="toggleTeamMenu()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-md transition text-sm">
+                <div id="active-user-avatar" class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] text-white font-bold">S</div>
+                <span id="active-user-name" class="font-bold text-slate-700 dark:text-slate-300 max-w-[90px] truncate text-xs">Kendi Tablom</span>
+                <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+            </button>
+
+            <!-- Takım Dropdown -->
+            <div id="team-dropdown">
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Takım Üyeleri</p>
+                    <button onclick="switchToMe()" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Benim Tablom</button>
+                </div>
+
+                <!-- Üye Ekleme -->
+                <div class="space-y-2 mb-1">
+                    <input type="email" id="member-search-input"
+                        placeholder="E-posta ile üye ekle..."
+                        class="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-indigo-400"
+                        onkeydown="if(event.key==='Enter') validateAndAddMember()">
+                    <input type="text" id="member-name-input"
+                        placeholder="Panoda görünecek isim (opsiyonel)"
+                        class="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-indigo-400"
+                        onkeydown="if(event.key==='Enter') validateAndAddMember()">
+                    <button onclick="validateAndAddMember()" class="w-full flex items-center justify-center gap-1.5 p-2 text-xs font-bold rounded-xl bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 transition">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Üye Ekle
+                    </button>
+                </div>
+                <!-- Durum mesajları -->
+                <p id="member-error"   class="hidden text-[10px] text-red-500   font-semibold mb-2 px-1">❌ Bu e-posta sistemde kayıtlı değil.</p>
+                <p id="member-success" class="hidden text-[10px] text-green-500 font-semibold mb-2 px-1">✅ Üye eklendi!</p>
+                <p id="member-already" class="hidden text-[10px] text-amber-500 font-semibold mb-2 px-1">ℹ️ Bu üye zaten eklenmiş.</p>
+
+                <!-- Üye Listesi -->
+                <div id="team-members-list" class="space-y-1 max-h-52 overflow-y-auto mt-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sağ -->
+    <div class="flex items-center gap-3 shrink-0">
+        <input type="text" id="search-input" oninput="filterCards()" placeholder="Ara..."
+            class="hidden md:block bg-slate-100 dark:bg-slate-800 dark:text-white rounded-xl px-4 py-2 text-xs focus:ring-2 focus:ring-indigo-400 w-48 outline-none">
+        <div onclick="toggleDarkMode()" class="switch-bg"><div class="switch-circle shadow-sm"></div></div>
+        <div class="relative">
+            <button onclick="toggleProfileMenu()" id="user-avatar"
+                class="w-9 h-9 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold border-2 border-white shadow cursor-pointer hover:scale-105 transition text-xs">?</button>
+            <div id="profile-menu" class="profile-dropdown">
+                <button onclick="openBoardModal()" class="w-full text-left px-4 py-2.5 text-sm text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-bold rounded-xl transition">📋 Board Değiştir</button>
+                <button onclick="clearAll()" class="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold rounded-xl transition">🗑️ Panoyu Sıfırla</button>
+                <button onclick="logout()" class="w-full text-left px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">🚪 Çıkış Yap</button>
+                <div class="mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
+                    <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Tema</p>
+                    <div class="grid grid-cols-3 gap-1 px-2 pb-1">
+                        <button onclick="setThemeMode('light')" id="theme-btn-light" class="px-2 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">Açık</button>
+                        <button onclick="setThemeMode('dark')" id="theme-btn-dark" class="px-2 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">Koyu</button>
+                        <button onclick="setThemeMode('system')" id="theme-btn-system" class="px-2 py-1.5 text-[11px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">Sistem</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Stats Bar ── -->
+<div id="stats-bar" class="px-3 sm:px-6 py-3 flex gap-3 overflow-x-auto">
+    <div class="stat-card flex items-center gap-3 p-3 min-w-[130px] rounded-xl shadow-sm">
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0">
+            <i data-lucide="layers" class="w-4 h-4 text-white"></i>
+        </div>
+        <div>
+            <p class="text-[9px] font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400">Toplam</p>
+            <p id="stat-total" class="text-lg font-black text-slate-900 dark:text-white">0</p>
+        </div>
+    </div>
+    <div class="stat-card flex items-center gap-3 p-3 min-w-[130px] rounded-xl shadow-sm">
+        <div class="w-8 h-8 bg-red-100 dark:bg-red-500/20 rounded-lg flex items-center justify-center shrink-0">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-red-500"></i>
+        </div>
+        <div>
+            <p class="text-[9px] font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400">Gecikenler</p>
+            <p id="stat-overdue" class="text-lg font-black text-slate-900 dark:text-white">0</p>
+        </div>
+    </div>
+    <div class="stat-card flex items-center gap-3 p-3 min-w-[130px] rounded-xl shadow-sm">
+        <div class="w-8 h-8 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg flex items-center justify-center shrink-0">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+        </div>
+        <div>
+            <p class="text-[9px] font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400">Tamamlanan</p>
+            <p id="stat-done" class="text-lg font-black text-slate-900 dark:text-white">0</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══ BOARD MODAL ══ -->
+<div id="board-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[150] p-4">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-3xl p-8 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold dark:text-white">Board Seç / Oluştur</h2>
+            <button onclick="closeBoardModal()" class="text-slate-400 hover:text-red-500 text-xl">✕</button>
+        </div>
+        <div id="boards-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-56 overflow-y-auto mb-6"></div>
+        <div class="border-t border-slate-100 dark:border-slate-700 pt-5">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Yeni Board</p>
+            <div class="flex gap-3">
+                <input type="text" id="new-board-name" placeholder="Board adı..."
+                    class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-400">
+                <button onclick="createNewBoard()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl text-sm font-bold transition">Oluştur</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ BOARD VIEW ══ -->
+<main id="board" class="flex-1 flex gap-3 md:gap-5 p-3 sm:p-4 md:p-6 overflow-x-auto items-start">
+    <button id="add-list-btn" onclick="addNewList()"
+        class="flex-shrink-0 w-[85vw] sm:w-72 bg-white/50 dark:bg-slate-800/40 hover:bg-white dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-2xl p-4 h-fit text-left transition font-bold border-2 border-dashed border-slate-300 dark:border-slate-600 text-sm">
+        + Yeni Liste Ekle
+    </button>
+</main>
+
+<!-- ══ CALENDAR VIEW ══ -->
+<main id="calendar-view" class="hidden flex-1 flex-col p-3 sm:p-4 md:p-6 overflow-hidden">
+    <div class="flex justify-between items-center mb-4">
+        <h2 id="calendar-month" class="text-xl font-bold text-slate-800 dark:text-white"></h2>
+        <div class="flex gap-2">
+            <button onclick="changeMonth(-1)" class="p-2 rounded-xl bg-white/70 dark:bg-slate-800/70 shadow hover:bg-white dark:hover:bg-slate-700 transition backdrop-blur-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4 dark:text-white"></i>
+            </button>
+            <button onclick="changeMonth(1)" class="p-2 rounded-xl bg-white/70 dark:bg-slate-800/70 shadow hover:bg-white dark:hover:bg-slate-700 transition backdrop-blur-sm">
+                <i data-lucide="chevron-right" class="w-4 h-4 dark:text-white"></i>
+            </button>
+        </div>
+    </div>
+    <div class="calendar-header text-center font-bold text-slate-400 dark:text-slate-500 text-xs mb-1">
+        <div>Pzt</div><div>Sal</div><div>Çar</div><div>Per</div><div>Cum</div><div>Cmt</div><div>Paz</div>
+    </div>
+    <div id="calendar-grid" class="calendar-grid flex-1 overflow-y-auto"></div>
+</main>
+
+<!-- ══ UPCOMING VIEW ══ -->
+<main id="upcoming-view" class="hidden flex-1 flex-col p-3 sm:p-4 md:p-6 overflow-auto">
+    <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-5">⏰ Yaklaşan Görevler</h2>
+    <div id="upcoming-list" class="space-y-3 max-w-2xl mx-auto w-full"></div>
+</main>
+
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+// ── State ──────────────────────────────────────────────────
+let draggingCard  = null;
+let currentMonth  = new Date();
+let currentUser   = null;
+let currentBoardId = 'default';
+let boards        = {};
+let teamMembers   = [];  // [{ name, email, initial, color }]
+const COLORS = ['#6366f1','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899','#84cc16'];
+let colorIdx = 0;
+const nextColor = () => COLORS[colorIdx++ % COLORS.length];
+const THEME_MODE_KEY = 'tp_theme_mode';
+const prefersDarkMedia = window.matchMedia('(prefers-color-scheme: dark)');
+let boardSyncTimer = null;
+
+// ── Boot: login kontrolü ───────────────────────────────────
+(async function boot() {
+    const saved = sessionStorage.getItem('tp_current_user');
+    if (!saved) {
+        window.location.href = 'login.html';
+        return;
+    }
+    currentUser = JSON.parse(saved);
+
+    // Tema uygula
+    const savedThemeMode = localStorage.getItem(THEME_MODE_KEY) || localStorage.getItem('tp_theme') || 'light';
+    applyThemeMode(savedThemeMode);
+
+    // Avatar
+    const initials = currentUser.username.substring(0, 2).toUpperCase();
+    const avatar   = document.getElementById('user-avatar');
+    avatar.innerText = initials;
+    avatar.style.background = currentUser.color || '#6366f1';
+
+    updateTeamButton({ name: 'Kendi Tablom', initial: initials, color: currentUser.color || '#6366f1' });
+
+    await loadBoards();
+    lucide.createIcons();
+    showToast(`👋 Hoş geldin, ${currentUser.username}!`);
+})();
+
+function logout() {
+    sessionStorage.removeItem('tp_current_user');
+    window.location.href = 'login.html';
+}
+
+// ── Team Menu ──────────────────────────────────────────────
+function toggleTeamMenu() {
+    document.getElementById('team-dropdown').classList.toggle('open');
+}
+
+function renderTeamList() {
+    const list = document.getElementById('team-members-list');
+    list.innerHTML = '';
+
+    if (teamMembers.length === 0) {
+        list.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-4">Henüz üye eklenmedi.</p>';
+    } else {
+        teamMembers.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'member-chip group';
+            div.innerHTML = `
+                <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                     style="background:${m.color}">${m.initial}</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold dark:text-white truncate">${escapeHtml(m.name)}</p>
+                    <p class="text-[10px] text-slate-400 truncate">${escapeHtml(m.email)}</p>
+                </div>
+                <button onclick="removeMember('${m.email}'); event.stopPropagation();"
+                        class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition shrink-0">
+                    <i data-lucide="x" class="w-3 h-3"></i>
+                </button>
+            `;
+            div.onclick = (e) => { if (!e.target.closest('button')) viewMemberBoard(m); };
+            list.appendChild(div);
+        });
+    }
+    lucide.createIcons();
+    saveBoardMeta();
+}
+
+function validateAndAddMember() {
+    const input   = document.getElementById('member-search-input');
+    const nameInput = document.getElementById('member-name-input');
+    const errEl   = document.getElementById('member-error');
+    const succEl  = document.getElementById('member-success');
+    const dupeEl  = document.getElementById('member-already');
+    const email   = input.value.trim().toLowerCase();
+    const customName = nameInput?.value.trim();
+
+    // Hepsini gizle
+    [errEl, succEl, dupeEl].forEach(el => el.classList.add('hidden'));
+
+    if (!email) return;
+
+    // Sistemde kayıtlı mı? (localStorage'daki gerçek kullanıcılar)
+    const allUsers = JSON.parse(localStorage.getItem('tp_users') || '[]');
+    const found    = allUsers.find(u => u.email && u.email.toLowerCase() === email);
+
+    if (!found) {
+        errEl.classList.remove('hidden');
+        setTimeout(() => errEl.classList.add('hidden'), 3000);
+        return;
+    }
+
+    // Zaten eklendi mi?
+    if (teamMembers.find(m => m.email === email)) {
+        dupeEl.classList.remove('hidden');
+        setTimeout(() => dupeEl.classList.add('hidden'), 2500);
+        input.value = '';
+        return;
+    }
+
+    // Kendi kendini ekleyemesin
+    if (found.username === currentUser.username) {
+        showToast('ℹ️ Kendinizi zaten ekleyemezsiniz.');
+        input.value = '';
+        return;
+    }
+
+    const displayName = customName || found.username;
+    teamMembers.push({
+        name:    displayName,
+        email:   found.email,
+        initial: displayName.substring(0, 1).toUpperCase(),
+        color:   found.color || nextColor()
+    });
+
+    input.value = '';
+    if (nameInput) nameInput.value = '';
+    succEl.classList.remove('hidden');
+    setTimeout(() => succEl.classList.add('hidden'), 2000);
+
+    renderTeamList();
+    updateAssigneeSelects();
+    showToast(`✅ ${displayName} takıma eklendi!`);
+}
+
+function removeMember(email) {
+    teamMembers = teamMembers.filter(m => m.email !== email);
+    renderTeamList();
+    updateAssigneeSelects();
+    showToast('🗑️ Üye çıkarıldı.');
+}
+
+function viewMemberBoard(member) {
+    updateTeamButton(member);
+    filterCardsByAssignee(member.name);
+    toggleTeamMenu();
+    showToast(`👤 ${member.name} görünümüne geçildi.`);
+}
+
+function switchToMe() {
+    const initials = currentUser.username.substring(0, 2).toUpperCase();
+    updateTeamButton({ name: 'Kendi Tablom', initial: initials, color: currentUser.color });
+    filterCardsByAssignee(null);
+    toggleTeamMenu();
+}
+
+function filterCardsByAssignee(name) {
+    document.querySelectorAll('.card').forEach(c => {
+        c.style.display = (!name || (c.dataset.assignee || '').toLowerCase() === name.toLowerCase()) ? '' : 'none';
+    });
+}
+
+function updateTeamButton(m) {
+    document.getElementById('active-user-avatar').innerText = m.initial || m.name.substring(0,1).toUpperCase();
+    document.getElementById('active-user-avatar').style.background = m.color;
+    document.getElementById('active-user-name').innerText = m.name;
+}
+
+// Tüm kart formlarındaki atanan select'lerini güncelle
+function updateAssigneeSelects() {
+    const allNames = getAssigneeList();
+    document.querySelectorAll('.assignee-select').forEach(sel => {
+        const current = sel.value;
+        sel.innerHTML = allNames.map(n => `<option value="${escapeHtml(n)}"${n===current?' selected':''}>${escapeHtml(n)}</option>`).join('');
+    });
+}
+
+function getAssigneeList() {
+    const me = currentUser?.username || '';
+    const others = teamMembers.map(m => m.name);
+    return [me, ...others.filter(n => n !== me)];
+}
+
+// ── Boards ─────────────────────────────────────────────────
+async function loadBoards() {
+    const localKey = 'tp_boards_' + currentUser.username;
+    const localSaved = localStorage.getItem(localKey);
+    let loadedBoards = null;
+
+    try {
+        const response = await fetch(`board_state.php?username=${encodeURIComponent(currentUser.username)}`);
+        const result = await response.json();
+        if (response.ok && result.success && result.boards && typeof result.boards === 'object') {
+            loadedBoards = result.boards;
+        }
+    } catch (_) {
+        // Sunucuya ulasilamazsa local fallback kullan.
+    }
+
+    if (!loadedBoards && localSaved) {
+        try { loadedBoards = JSON.parse(localSaved); } catch (_) { loadedBoards = null; }
+    }
+
+    boards = loadedBoards || {
+        default: { name: 'Genel Görevler', lists: [], team: [] }
+    };
+    localStorage.setItem(localKey, JSON.stringify(boards));
+    loadCurrentBoard();
+}
+
+function saveBoards() {
+    if (!currentUser) return;
+    localStorage.setItem('tp_boards_' + currentUser.username, JSON.stringify(boards));
+    scheduleBoardSync();
+}
+
+function scheduleBoardSync() {
+    if (!currentUser) return;
+    clearTimeout(boardSyncTimer);
+    boardSyncTimer = setTimeout(syncBoardsToServer, 400);
+}
+
+async function syncBoardsToServer() {
+    if (!currentUser) return;
+    try {
+        await fetch('board_state.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: currentUser.username,
+                boards
+            })
+        });
+    } catch (_) {
+        // Ag hatasi: local veriler tutuluyor, sonraki kayitta tekrar denenecek.
+    }
+}
+
+function saveBoardMeta() {
+    if (boards[currentBoardId]) { boards[currentBoardId].team = teamMembers; saveBoards(); }
+}
+
+function loadCurrentBoard() {
+    const board = boards[currentBoardId];
+    if (!board) return;
+
+    document.getElementById('current-board-name').innerText = board.name;
+    teamMembers = board.team || [];
+    renderTeamList();
+
+    document.querySelectorAll('.list').forEach(l => l.remove());
+    board.lists.forEach(ld => {
+        addNewList(ld.title, true);
+        const containers = document.querySelectorAll('.cards-container');
+        const last = containers[containers.length - 1];
+        ld.cards.forEach(c => createCardElement(last, c.text, c.priority, c.deadline, c.assignee, c.comments || [], c.description || '', c.completed || false, c.attachments || []));
+    });
+    saveAll();
+}
+
+function openBoardModal() {
+    const list = document.getElementById('boards-list');
+    list.innerHTML = '';
+    Object.keys(boards).forEach(id => {
+        const b = boards[id];
+        const div = document.createElement('div');
+        div.className = `p-4 rounded-xl border-2 cursor-pointer transition flex justify-between items-center ${id === currentBoardId ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-slate-200 dark:border-slate-700 hover:border-indigo-300'}`;
+        div.innerHTML = `<span class="font-bold text-sm dark:text-white">${escapeHtml(b.name)}</span>${id === currentBoardId ? '<i data-lucide="check" class="w-4 h-4 text-indigo-500"></i>' : ''}`;
+        div.onclick = () => switchBoard(id);
+        list.appendChild(div);
+    });
+    lucide.createIcons();
+    document.getElementById('board-modal').classList.remove('hidden');
+}
+
+function closeBoardModal() { document.getElementById('board-modal').classList.add('hidden'); }
+
+function switchBoard(id) {
+    saveAll(); currentBoardId = id; loadCurrentBoard(); closeBoardModal();
+}
+
+function createNewBoard() {
+    const name = document.getElementById('new-board-name').value.trim();
+    if (!name) return;
+    const id = 'board_' + Date.now();
+    boards[id] = { name, lists: [], team: [] };
+    saveBoards();
+    document.getElementById('new-board-name').value = '';
+    switchBoard(id);
+}
+
+// ── List ───────────────────────────────────────────────────
+function addNewList(title = null, silent = false) {
+    const listName = title || (silent ? null : prompt('Liste Başlığı:'));
+    if (!listName) return;
+
+    const board  = document.getElementById('board');
+    const btn    = document.getElementById('add-list-btn');
+    const newList = document.createElement('div');
+    newList.className = 'list bg-white/40 dark:bg-slate-900/50 backdrop-blur-sm w-[85vw] sm:w-72 p-4 rounded-2xl flex-shrink-0 border border-white/60 dark:border-slate-700/50';
+
+    const assigneeOpts = () => getAssigneeList().map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+
+    newList.innerHTML = `
+        <h2 class="font-black text-slate-700 dark:text-slate-200 mb-4 px-1 flex justify-between items-center uppercase text-xs tracking-widest">
+            <span class="truncate list-title">${escapeHtml(listName)}</span>
+            <button onclick="deleteList(this)" class="text-slate-400 hover:text-red-500 ml-2 shrink-0">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+        </h2>
+        <div class="cards-container min-h-[60px]"></div>
+        <div class="mt-3">
+            <button onclick="openCardForm(this)" class="w-full text-left p-2 text-slate-400 text-xs font-bold hover:bg-white dark:hover:bg-slate-800 rounded-xl transition">+ Kart Ekle</button>
+            <div class="card-form hidden space-y-2 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm mt-1">
+                <input type="text" placeholder="Görev başlığı..." class="w-full p-2 text-xs bg-slate-50 dark:bg-slate-700 dark:text-white rounded-lg outline-none border border-slate-200 dark:border-slate-600 focus:ring-1 focus:ring-indigo-400">
+                <textarea placeholder="Açıklama (isteğe bağlı)..." rows="2" class="w-full p-2 text-xs bg-slate-50 dark:bg-slate-700 dark:text-white rounded-lg outline-none border border-slate-200 dark:border-slate-600 resize-none"></textarea>
+                <div class="flex gap-1.5">
+                    <select class="flex-1 p-2 text-xs bg-slate-50 dark:bg-slate-700 dark:text-white rounded-lg border border-slate-200 dark:border-slate-600 outline-none">
+                        <option value="1">🟢 Düşük</option>
+                        <option value="2">🟡 Orta</option>
+                        <option value="3">🔴 Yüksek</option>
+                    </select>
+                    <select class="flex-1 assignee-select p-2 text-xs bg-slate-50 dark:bg-slate-700 dark:text-white rounded-lg border border-slate-200 dark:border-slate-600 outline-none">
+                        ${assigneeOpts()}
+                    </select>
+                </div>
+                <input type="datetime-local" class="w-full p-2 text-xs bg-slate-50 dark:bg-slate-700 dark:text-white rounded-lg border border-slate-200 dark:border-slate-600 outline-none">
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase">Dosya Ekle</label>
+                    <input type="file" multiple class="task-file-input w-full p-1.5 text-xs bg-slate-50 dark:bg-slate-700 dark:text-white rounded-lg border border-slate-200 dark:border-slate-600 outline-none file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-indigo-100 file:text-indigo-700 dark:file:bg-indigo-900/40 dark:file:text-indigo-300">
+                    <p class="upload-status hidden text-[10px] text-slate-400"></p>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button onclick="submitCard(this)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">Ekle</button>
+                    <button onclick="closeCardForm(this)" class="text-slate-400 text-xs hover:text-slate-600">İptal</button>
+                </div>
+            </div>
+        </div>
+    `;
+    addContainerListeners(newList.querySelector('.cards-container'));
+    board.insertBefore(newList, btn);
+    lucide.createIcons();
+    if (!silent) saveAll();
+}
+
+function deleteList(btn) {
+    if (confirm('Bu listeyi silmek istiyorsunuz?')) { btn.closest('.list').remove(); saveAll(); }
+}
+
+function openCardForm(btn) {
+    btn.classList.add('hidden');
+    btn.nextElementSibling.classList.remove('hidden');
+    btn.nextElementSibling.querySelector('input[type="text"]')?.focus();
+    // Atanan listesini güncelle
+    const sel = btn.nextElementSibling.querySelector('.assignee-select');
+    if (sel) sel.innerHTML = getAssigneeList().map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+}
+
+function closeCardForm(btn) {
+    const form = btn.closest('.card-form');
+    form.classList.add('hidden');
+    form.previousElementSibling.classList.remove('hidden');
+}
+
+async function submitCard(btn) {
+    const form     = btn.closest('.card-form');
+    const input    = form.querySelector('input[type="text"]');
+    if (!input.value.trim()) return;
+    const desc     = form.querySelector('textarea').value.trim();
+    const priority = form.querySelector('select').value;
+    const assignee = form.querySelector('.assignee-select').value;
+    const deadline = form.querySelector('input[type="datetime-local"]').value;
+    const fileInput = form.querySelector('.task-file-input');
+    const statusEl = form.querySelector('.upload-status');
+    const container = form.closest('.list').querySelector('.cards-container');
+    let attachments = [];
+    if (fileInput?.files?.length) {
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+        statusEl?.classList.remove('hidden');
+        if (statusEl) statusEl.innerText = 'Dosyalar yukleniyor...';
+        try {
+            attachments = await uploadTaskFiles(fileInput.files);
+        } catch (err) {
+            if (statusEl) statusEl.innerText = 'Yukleme hatasi. Tekrar deneyin.';
+            showToast(`❌ ${err.message || 'Dosya yuklenemedi.'}`);
+            btn.disabled = false;
+            btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            return;
+        }
+    }
+
+    createCardElement(container, input.value.trim(), priority, deadline, assignee, [], desc, false, attachments);
+    input.value = ''; form.querySelector('textarea').value = '';
+    if (fileInput) fileInput.value = '';
+    if (statusEl) {
+        statusEl.classList.add('hidden');
+        statusEl.innerText = '';
+    }
+    btn.disabled = false;
+    btn.classList.remove('opacity-70', 'cursor-not-allowed');
+    closeCardForm(btn); saveAll();
+}
+
+// ── Card ───────────────────────────────────────────────────
+function createCardElement(container, text, priority, deadline='', assignee='', comments=[], description='', completed=false, attachments=[]) {
+    const card = document.createElement('div');
+    card.className = `card bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 mb-2.5${completed ? ' completed' : ''}`;
+    card.draggable = true;
+    card.dataset.priority    = priority;
+    card.dataset.deadline    = deadline;
+    card.dataset.assignee    = assignee || currentUser?.username || '';
+    card.dataset.comments    = JSON.stringify(comments);
+    card.dataset.description = description;
+    card.dataset.completed   = completed ? 'true' : 'false';
+    card.dataset.attachments = JSON.stringify(attachments || []);
+
+    const pc = priority === '3' ? 'bg-rose-500' : priority === '2' ? 'bg-amber-400' : 'bg-emerald-400';
+    const dateHTML = deadline ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">${new Date(deadline).toLocaleDateString('tr-TR')}</span>` : '';
+    const descIcon = description ? `<i data-lucide="align-left" class="w-3 h-3 text-slate-300"></i>` : '';
+    const attachmentIcon = attachments.length ? `<span class="attachment-count text-[10px] text-slate-400 font-bold flex items-center gap-1"><i data-lucide="paperclip" class="w-3 h-3"></i>${attachments.length}</span>` : '';
+    const assigneeDisplay = card.dataset.assignee;
+
+    card.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-2">
+                <input type="checkbox" class="rounded" ${completed ? 'checked' : ''} onchange="toggleComplete(this)" onclick="event.stopPropagation()">
+                <div class="w-6 h-1 ${pc} rounded-full priority-bar"></div>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full assignee-label">${escapeHtml(assigneeDisplay)}</span>
+                <div class="opacity-0 group-hover:opacity-100 transition flex gap-1">
+                    <button onclick="openEditModal(this); event.stopPropagation();" class="text-slate-300 hover:text-indigo-500 p-0.5"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                    <button onclick="deleteCard(this); event.stopPropagation();" class="text-slate-300 hover:text-red-500 p-0.5"><i data-lucide="trash" class="w-3 h-3"></i></button>
+                </div>
+            </div>
+        </div>
+        <p class="card-text text-sm font-semibold text-slate-700 dark:text-slate-200 leading-snug">${escapeHtml(text)}</p>
+        <div class="flex items-center justify-between mt-2.5">
+            <div class="card-meta flex items-center gap-1.5">${dateHTML}${descIcon}${attachmentIcon}</div>
+            <span class="text-[10px] text-slate-300 font-bold flex items-center gap-1 comment-count"><i data-lucide="message-square" class="w-3 h-3"></i>${comments.length}</span>
+        </div>
+    `;
+    card.onclick = (e) => { if (!e.target.closest('button') && e.target.type !== 'checkbox') openCardModal(card); };
+    addCardListeners(card);
+    container.appendChild(card);
+    lucide.createIcons();
+}
+
+function toggleComplete(el) {
+    const card = el.closest('.card');
+    const done = el.checked;
+    card.dataset.completed = done ? 'true' : 'false';
+    card.classList.toggle('completed', done);
+    saveAll();
+}
+
+function deleteCard(btn) {
+    if (confirm('Bu kartı silmek istiyorsunuz?')) { btn.closest('.card').remove(); saveAll(); }
+}
+
+// ── Edit Modal ─────────────────────────────────────────────
+function openEditModal(btn) {
+    const card = btn.closest('.card');
+    window.editingCard = card;
+    const id = 'em_' + Date.now();
+    const opts = getAssigneeList().map(n => `<option value="${escapeHtml(n)}"${card.dataset.assignee===n?' selected':''}>${escapeHtml(n)}</option>`).join('');
+    const attachments = JSON.parse(card.dataset.attachments || '[]');
+    window.editAttachmentsMap = window.editAttachmentsMap || {};
+    window.editAttachmentsMap[id] = attachments;
+
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="${id}" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[300] p-4" onclick="if(event.target===this)closeModal('${id}')">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold dark:text-white">Görevi Düzenle</h3>
+                    <button onclick="closeModal('${id}')" class="text-slate-400 hover:text-red-500 text-xl">✕</button>
+                </div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Başlık</label>
+                    <input id="et_${id}" type="text" value="${escapeHtml(card.querySelector('.card-text').innerText)}"
+                        class="w-full p-3 text-sm bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border border-slate-200 dark:border-slate-600 outline-none focus:ring-2 focus:ring-indigo-400">
+                </div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Açıklama</label>
+                    <textarea id="ed_${id}" rows="3" class="w-full p-3 text-sm bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border border-slate-200 dark:border-slate-600 outline-none focus:ring-2 focus:ring-indigo-400 resize-none">${escapeHtml(card.dataset.description||'')}</textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Öncelik</label>
+                        <select id="ep_${id}" class="w-full p-3 text-sm bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border border-slate-200 dark:border-slate-600 outline-none">
+                            <option value="1"${card.dataset.priority==='1'?' selected':''}>🟢 Düşük</option>
+                            <option value="2"${card.dataset.priority==='2'?' selected':''}>🟡 Orta</option>
+                            <option value="3"${card.dataset.priority==='3'?' selected':''}>🔴 Yüksek</option>
+                        </select>
+                    </div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Atanan</label>
+                        <select id="ea_${id}" class="w-full p-3 text-sm bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border border-slate-200 dark:border-slate-600 outline-none">${opts}</select>
+                    </div>
+                </div>
+                <div><label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Son Tarih</label>
+                    <input id="edl_${id}" type="datetime-local" value="${escapeHtml(card.dataset.deadline||'')}"
+                        class="w-full p-3 text-sm bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border border-slate-200 dark:border-slate-600 outline-none focus:ring-2 focus:ring-indigo-400">
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 p-3">
+                    <p id="eac_title_${id}" class="text-[10px] font-bold text-slate-500 mb-2 uppercase">Mevcut Dosyalar (0)</p>
+                    <div id="eal_${id}" class="space-y-1.5"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Yeni Dosya Ekle</label>
+                    <input id="efa_${id}" type="file" multiple class="w-full p-2 text-xs bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border border-slate-200 dark:border-slate-600 outline-none file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-indigo-100 file:text-indigo-700 dark:file:bg-indigo-900/40 dark:file:text-indigo-300">
+                    <p id="eus_${id}" class="hidden text-[10px] text-slate-400 mt-1"></p>
+                </div>
+                <button onclick="saveCardEdit('${id}', this)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition">Kaydet</button>
+            </div>
+        </div>
+    `);
+    renderEditAttachmentList(id);
+}
+
+async function saveCardEdit(id, btn) {
+    if (!window.editingCard) return;
+    const card = window.editingCard;
+    const title = document.getElementById('et_' + id).value.trim();
+    if (!title) return;
+    const fileInput = document.getElementById('efa_' + id);
+    const statusEl = document.getElementById('eus_' + id);
+    let attachments = (window.editAttachmentsMap && window.editAttachmentsMap[id])
+        ? [...window.editAttachmentsMap[id]]
+        : JSON.parse(card.dataset.attachments || '[]');
+
+    if (fileInput?.files?.length) {
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+        }
+        if (statusEl) {
+            statusEl.classList.remove('hidden');
+            statusEl.innerText = 'Dosyalar yukleniyor...';
+        }
+        try {
+            const newlyUploaded = await uploadTaskFiles(fileInput.files);
+            attachments = attachments.concat(newlyUploaded);
+            if (window.editAttachmentsMap) window.editAttachmentsMap[id] = attachments;
+        } catch (err) {
+            if (statusEl) statusEl.innerText = 'Yukleme hatasi. Tekrar deneyin.';
+            showToast(`❌ ${err.message || 'Dosya yuklenemedi.'}`);
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+            return;
+        }
+    }
+
+    card.querySelector('.card-text').innerText = title;
+    card.dataset.description = document.getElementById('ed_' + id).value.trim();
+    card.dataset.priority    = document.getElementById('ep_' + id).value;
+    card.dataset.assignee    = document.getElementById('ea_' + id).value;
+    card.dataset.deadline    = document.getElementById('edl_' + id).value;
+    card.dataset.attachments = JSON.stringify(attachments);
+
+    const pc = card.dataset.priority === '3' ? 'bg-rose-500' : card.dataset.priority === '2' ? 'bg-amber-400' : 'bg-emerald-400';
+    card.querySelector('.priority-bar').className = `w-6 h-1 ${pc} rounded-full priority-bar`;
+    card.querySelector('.assignee-label').innerText = card.dataset.assignee;
+    updateCardAttachmentIndicator(card, attachments.length);
+
+    const dl = card.dataset.deadline;
+    const dateEl = card.querySelector('.text-indigo-600, .text-indigo-300');
+    if (dateEl) dateEl.innerText = dl ? new Date(dl).toLocaleDateString('tr-TR') : '';
+
+    if (btn) {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+    }
+    lucide.createIcons();
+    saveAll();
+    closeModal(id);
+    showToast('✅ Görev güncellendi!');
+}
+
+// ── Card Detail Modal ──────────────────────────────────────
+function openCardModal(card) {
+    window.editingCard = card;
+    const id       = 'cm_' + Date.now();
+    const comments = JSON.parse(card.dataset.comments || '[]');
+    const desc     = card.dataset.description || '';
+    const attachments = JSON.parse(card.dataset.attachments || '[]');
+    const pLabel   = { '1': '🟢 Düşük', '2': '🟡 Orta', '3': '🔴 Yüksek' }[card.dataset.priority] || '';
+    const attachmentHtml = attachments.length
+        ? `<div class="mb-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <p class="text-xs font-bold text-slate-500 mb-2 flex items-center gap-1.5"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i> Dosyalar (${attachments.length})</p>
+                <div class="space-y-1.5">
+                    ${attachments.map(a => `<a href="${escapeHtml(a.url)}" target="_blank" rel="noopener noreferrer" class="block text-xs text-indigo-600 dark:text-indigo-300 hover:underline truncate">📎 ${escapeHtml(a.name || 'Dosya')}</a>`).join('')}
+                </div>
+            </div>`
+        : '';
+
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="${id}" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[300] p-4" onclick="if(event.target===this)closeModal('${id}')">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1 pr-4">
+                        <h3 class="text-lg font-bold dark:text-white mb-2">${escapeHtml(card.querySelector('.card-text').innerText)}</h3>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="text-xs font-bold px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 rounded-full">${escapeHtml(card.dataset.assignee)}</span>
+                            <span class="text-xs font-bold px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full">${pLabel}</span>
+                            ${card.dataset.deadline ? `<span class="text-xs font-bold px-2 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-600 rounded-full">📅 ${new Date(card.dataset.deadline).toLocaleString('tr-TR')}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <button onclick="closeModal('${id}'); setTimeout(()=>{if(window.editingCard){const eb=window.editingCard.querySelector('[onclick*=openEditModal]');if(eb)eb.click();}},50)"
+                            class="text-xs font-bold text-indigo-500 hover:text-indigo-700 px-3 py-1.5 rounded-xl hover:bg-indigo-50 transition">Düzenle</button>
+                        <button onclick="closeModal('${id}')" class="text-slate-400 hover:text-red-500 text-xl leading-none">✕</button>
+                    </div>
+                </div>
+                ${desc ? `<div class="mb-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700">
+                    <p class="text-xs font-bold text-slate-500 mb-2 flex items-center gap-1.5"><i data-lucide="align-left" class="w-3.5 h-3.5"></i> Açıklama</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">${escapeHtml(desc)}</p></div>` : ''}
+                ${attachmentHtml}
+                <div class="border-t border-slate-100 dark:border-slate-700 pt-4">
+                    <p class="text-xs font-bold text-slate-500 mb-3">Yorumlar (${comments.length})</p>
+                    <div class="space-y-2 mb-4 max-h-48 overflow-y-auto p-3 bg-slate-50 dark:bg-slate-900 rounded-2xl">
+                        ${comments.length ? comments.map(c => `
+                            <div class="bg-white dark:bg-slate-800 p-3 rounded-xl">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-xs font-bold text-indigo-500">${escapeHtml(c.user)}</span>
+                                    <span class="text-[10px] text-slate-400">${new Date(c.date).toLocaleDateString('tr-TR')}</span>
+                                </div>
+                                <p class="text-xs text-slate-600 dark:text-slate-300">${escapeHtml(c.text)}</p>
+                            </div>`) .join('') : '<p class="text-xs text-slate-400 text-center py-4 italic">Henüz yorum yok.</p>'}
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="ci_${id}" placeholder="Yorum yaz..." onkeydown="if(event.key==='Enter')addComment('${id}')"
+                            class="flex-1 p-2.5 text-sm bg-white dark:bg-slate-700 dark:text-white rounded-xl border border-slate-200 dark:border-slate-600 outline-none focus:ring-2 focus:ring-indigo-400">
+                        <button onclick="addComment('${id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-xl text-xs font-bold transition">Gönder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+    lucide.createIcons();
+    setTimeout(() => document.getElementById('ci_' + id)?.focus(), 50);
+}
+
+function addComment(id) {
+    const input = document.getElementById('ci_' + id);
+    if (!input?.value.trim() || !window.editingCard) return;
+    const comments = JSON.parse(window.editingCard.dataset.comments || '[]');
+    comments.push({ user: currentUser?.username || '?', text: input.value.trim(), date: new Date().toISOString() });
+    window.editingCard.dataset.comments = JSON.stringify(comments);
+    const cc = window.editingCard.querySelector('.comment-count');
+    if (cc) cc.innerHTML = `<i data-lucide="message-square" class="w-3 h-3"></i>${comments.length}`;
+    lucide.createIcons();
+    saveAll();
+    const card = window.editingCard;
+    closeModal(id);
+    setTimeout(() => openCardModal(card), 50);
+}
+
+function closeModal(id) {
+    document.getElementById(id)?.remove();
+    if (window.editAttachmentsMap && window.editAttachmentsMap[id]) {
+        delete window.editAttachmentsMap[id];
+    }
+}
+
+function renderEditAttachmentList(id) {
+    const list = document.getElementById('eal_' + id);
+    const title = document.getElementById('eac_title_' + id);
+    if (!list || !window.editAttachmentsMap) return;
+
+    const attachments = window.editAttachmentsMap[id] || [];
+    if (title) title.innerText = `Mevcut Dosyalar (${attachments.length})`;
+
+    if (!attachments.length) {
+        list.innerHTML = '<p class="text-[10px] text-slate-400 italic">Bu gorevde henuz dosya yok.</p>';
+        return;
+    }
+
+    list.innerHTML = attachments.map((a, i) => `
+        <div class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-2.5 py-1.5">
+            <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 text-xs text-indigo-600 dark:text-indigo-300 hover:underline truncate">📎 ${escapeHtml(a.name || 'Dosya')}</a>
+            <button type="button" onclick="removeEditAttachment('${id}', ${i})" class="text-[10px] font-bold text-red-500 hover:text-red-700">Sil</button>
+        </div>
+    `).join('');
+}
+
+function removeEditAttachment(id, index) {
+    if (!window.editAttachmentsMap || !window.editAttachmentsMap[id]) return;
+    window.editAttachmentsMap[id].splice(index, 1);
+    renderEditAttachmentList(id);
+}
+
+// ── Drag & Drop ────────────────────────────────────────────
+function addCardListeners(card) {
+    card.addEventListener('dragstart', e => { card.classList.add('dragging'); draggingCard = card; e.stopPropagation(); });
+    card.addEventListener('dragend',   () => { card.classList.remove('dragging'); draggingCard = null; saveAll(); });
+}
+
+function addContainerListeners(container) {
+    container.addEventListener('dragover', e => {
+        e.preventDefault();
+        const after = getDragAfterElement(container, e.clientY);
+        if (draggingCard) after ? container.insertBefore(draggingCard, after) : container.appendChild(draggingCard);
+    });
+}
+
+function getDragAfterElement(container, y) {
+    return [...container.querySelectorAll('.card:not(.dragging)')].reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        return offset < 0 && offset > closest.offset ? { offset, element: child } : closest;
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// ── Save ───────────────────────────────────────────────────
+function saveAll() {
+    let total = 0, overdue = 0, done = 0, upcoming = 0;
+    const now = new Date();
+    const lists = [];
+
+    document.querySelectorAll('.list').forEach(list => {
+        const cards = [];
+        list.querySelectorAll('.card').forEach(card => {
+            const d = card.dataset.deadline;
+            const isCompleted = card.dataset.completed === 'true';
+            cards.push({
+                text:        card.querySelector('.card-text').innerText,
+                priority:    card.dataset.priority,
+                deadline:    d,
+                assignee:    card.dataset.assignee,
+                comments:    JSON.parse(card.dataset.comments || '[]'),
+                description: card.dataset.description || '',
+                completed:   isCompleted,
+                attachments: JSON.parse(card.dataset.attachments || '[]')
+            });
+            total++;
+            if (isCompleted) done++;
+            else if (d) {
+                const date = new Date(d);
+                if (date < now) overdue++;
+                else if (date < new Date(now.getTime() + 48 * 3600000)) upcoming++;
+            }
+        });
+        lists.push({ title: list.querySelector('.list-title').textContent.trim(), cards });
+    });
+
+    if (currentUser && boards[currentBoardId]) {
+        boards[currentBoardId].lists = lists;
+        saveBoards();
+    }
+
+    document.getElementById('stat-total').innerText   = total;
+    document.getElementById('stat-overdue').innerText = overdue;
+    document.getElementById('stat-done').innerText    = done;
+
+    const badge = document.getElementById('upcoming-badge');
+    badge.innerText = upcoming;
+    badge.classList.toggle('hidden', upcoming === 0);
+    badge.classList.toggle('flex', upcoming > 0);
+}
+
+// ── Views ──────────────────────────────────────────────────
+function switchView(view) {
+    ['board', 'calendar', 'upcoming'].forEach(v => {
+        const btn = document.getElementById('btn-' + v);
+        if (btn) {
+            btn.classList.toggle('bg-white',          v === view);
+            btn.classList.toggle('dark:bg-slate-700', v === view);
+            btn.classList.toggle('shadow-sm',         v === view);
+            btn.classList.toggle('text-slate-500',    v !== view);
+        }
+        const el = document.getElementById(v === 'board' ? 'board' : v + '-view');
+        if (el) el.classList.toggle('hidden', v !== view);
+    });
+    document.getElementById('stats-bar').classList.toggle('hidden', view !== 'board');
+    if (view === 'calendar') renderCalendar();
+    if (view === 'upcoming') renderUpcoming();
+}
+
+function renderCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const year = currentMonth.getFullYear(), month = currentMonth.getMonth();
+    document.getElementById('calendar-month').innerText = new Intl.DateTimeFormat('tr-TR', { month: 'long', year: 'numeric' }).format(currentMonth);
+
+    const cards = [];
+    document.querySelectorAll('.card').forEach(c => {
+        if (c.dataset.deadline) cards.push({ text: c.querySelector('.card-text').innerText, date: new Date(c.dataset.deadline) });
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    for (let j = 0; j < (firstDay === 0 ? 6 : firstDay - 1); j++) grid.appendChild(document.createElement('div'));
+
+    const today = new Date();
+    for (let i = 1; i <= new Date(year, month + 1, 0).getDate(); i++) {
+        const cell = document.createElement('div');
+        const isToday = today.getDate() === i && today.getMonth() === month && today.getFullYear() === year;
+        cell.className = 'calendar-day overflow-hidden' + (isToday ? ' ring-2 ring-indigo-400' : '');
+
+        let html = `<span class="text-xs font-bold ${isToday ? 'text-indigo-500' : 'text-slate-400 dark:text-slate-500'}">${i}</span>`;
+        cards.forEach(c => {
+            if (c.date.getDate() === i && c.date.getMonth() === month && c.date.getFullYear() === year) {
+                html += `<div class="text-[9px] bg-indigo-500 text-white p-1 mt-1 rounded-lg truncate font-medium">● ${escapeHtml(c.text)}</div>`;
+            }
+        });
+        cell.innerHTML = html;
+        grid.appendChild(cell);
+    }
+}
+
+function renderUpcoming() {
+    const list = document.getElementById('upcoming-list');
+    if (!list) return;
+    list.innerHTML = '';
+    const now   = new Date();
+    const items = [];
+
+    document.querySelectorAll('.card').forEach(card => {
+        if (card.dataset.deadline && card.dataset.completed !== 'true') {
+            const d = new Date(card.dataset.deadline);
+            if (d > now) items.push({ card, date: d });
+        }
+    });
+    items.sort((a, b) => a.date - b.date);
+
+    items.forEach(({ card, date }) => {
+        const hours   = Math.floor((date - now) / 3600000);
+        const urgency = hours < 24 ? 'urgency-high' : hours < 72 ? 'urgency-med' : 'urgency-low';
+        const item    = document.createElement('div');
+        item.className = `p-4 rounded-2xl shadow-sm border ${urgency} flex justify-between items-center hover:shadow-md transition cursor-pointer backdrop-blur-sm`;
+        item.onclick   = () => openCardModal(card);
+        item.innerHTML = `
+            <div>
+                <p class="font-bold text-sm dark:text-white">${escapeHtml(card.querySelector('.card-text').innerText)}</p>
+                <p class="text-xs text-slate-400 mt-0.5">${date.toLocaleString('tr-TR')}</p>
+                ${hours < 48 ? `<span class="text-[10px] font-bold text-red-500">⚡ ${hours < 1 ? 'Az kaldı!' : hours + ' saat kaldı'}</span>` : ''}
+            </div>
+            <span class="text-xs font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 px-3 py-1 rounded-full">${escapeHtml(card.dataset.assignee)}</span>
+        `;
+        list.appendChild(item);
+    });
+
+    if (!items.length) list.innerHTML = '<p class="text-center text-slate-400 italic py-12 dark:text-slate-500">Yaklaşan görev yok. 🎉</p>';
+}
+
+function changeMonth(d) { currentMonth.setMonth(currentMonth.getMonth() + d); renderCalendar(); }
+
+// ── Utilities ──────────────────────────────────────────────
+function toggleDarkMode() {
+    const currentlyDark = document.documentElement.classList.contains('dark');
+    setThemeMode(currentlyDark ? 'light' : 'dark');
+}
+
+function applyThemeMode(mode) {
+    const isDark = mode === 'dark' || (mode === 'system' && prefersDarkMedia.matches);
+    document.documentElement.classList.toggle('dark', isDark);
+    localStorage.setItem('tp_theme', isDark ? 'dark' : 'light');
+    highlightThemeButtons(mode);
+}
+
+function setThemeMode(mode) {
+    localStorage.setItem(THEME_MODE_KEY, mode);
+    applyThemeMode(mode);
+}
+
+function highlightThemeButtons(mode) {
+    const map = { light: 'theme-btn-light', dark: 'theme-btn-dark', system: 'theme-btn-system' };
+    Object.entries(map).forEach(([key, id]) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        const active = key === mode;
+        btn.classList.toggle('bg-indigo-100', active);
+        btn.classList.toggle('text-indigo-700', active);
+        btn.classList.toggle('dark:bg-indigo-900/40', active);
+        btn.classList.toggle('dark:text-indigo-300', active);
+    });
+}
+
+function toggleProfileMenu() { document.getElementById('profile-menu').classList.toggle('open'); }
+
+function clearAll() {
+    if (confirm('Tüm veriler silinecek. Emin misiniz?')) {
+        localStorage.removeItem('tp_boards_' + currentUser?.username);
+        location.reload();
+    }
+}
+
+function filterCards() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    document.querySelectorAll('.card').forEach(c => {
+        c.style.display = c.querySelector('.card-text').innerText.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+
+function escapeHtml(text) {
+    const d = document.createElement('div'); d.textContent = text || ''; return d.innerHTML;
+}
+
+function updateCardAttachmentIndicator(card, count) {
+    const wrap = card.querySelector('.card-meta');
+    if (!wrap) return;
+
+    let badge = card.querySelector('.attachment-count');
+    if (count > 0) {
+        const badgeHtml = `<span class="attachment-count text-[10px] text-slate-400 font-bold flex items-center gap-1"><i data-lucide="paperclip" class="w-3 h-3"></i>${count}</span>`;
+        if (badge) {
+            badge.outerHTML = badgeHtml;
+        } else {
+            wrap.insertAdjacentHTML('beforeend', badgeHtml);
+        }
+    } else if (badge) {
+        badge.remove();
+    }
+}
+
+async function uploadTaskFiles(fileList) {
+    const formData = new FormData();
+    [...fileList].forEach(file => formData.append('files[]', file));
+
+    const response = await fetch('upload_task_file.php', {
+        method: 'POST',
+        body: formData
+    });
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Dosya yukleme basarisiz.');
+    }
+
+    return result.files || [];
+}
+
+function showToast(msg) {
+    const div = document.createElement('div');
+    div.className = 'toast';
+    div.innerText  = msg;
+    document.getElementById('toast-container').appendChild(div);
+    setTimeout(() => div.remove(), 3800);
+}
+
+// Dışarı tıklayınca kapat
+document.addEventListener('click', e => {
+    const tw = document.getElementById('team-menu-wrapper');
+    const pm = document.getElementById('profile-menu');
+    const pa = document.getElementById('user-avatar');
+    if (tw && !tw.contains(e.target)) document.getElementById('team-dropdown')?.classList.remove('open');
+    if (pm && pa && !pm.contains(e.target) && !pa.contains(e.target)) pm.classList.remove('open');
+});
+
+prefersDarkMedia.addEventListener('change', () => {
+    if ((localStorage.getItem(THEME_MODE_KEY) || 'light') === 'system') {
+        applyThemeMode('system');
+    }
+});
+
+// Deadline bildirimleri
+setInterval(() => {
+    const now = new Date();
+    document.querySelectorAll('.card').forEach(card => {
+        if (!card.dataset.deadline || card.dataset.notified || card.dataset.completed === 'true') return;
+        const diff = new Date(card.dataset.deadline) - now;
+        if (diff > 0 && diff < 3600000) {
+            card.dataset.notified = 'true';
+            showToast(`⏰ 1 saat kaldı: ${card.querySelector('.card-text').innerText}`);
+        }
+    });
+}, 60000);
+</script>
+</body>
+</html>

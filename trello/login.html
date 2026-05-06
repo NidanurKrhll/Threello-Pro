@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="tr" id="html-root">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threello Pro — Giriş</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* ── LIGHT MODE ── */
+        body.light {
+            background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%) !important;
+        }
+
+        /* ── DARK MODE ── */
+        body.dark {
+            background: radial-gradient(circle, rgba(0, 21, 255, 1) 0%, rgba(37, 92, 13, 1) 100%) !important;
+        }
+
+        /* ── Card Container ── */
+        .login-card {
+            width: 100%;
+            max-width: 920px;
+            min-height: 580px;
+            display: flex;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.25);
+            transition: all 0.4s ease;
+        }
+
+        /* ── Sol Panel ── */
+        .left-panel {
+            width: 45%;
+            padding: 52px 44px;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .left-panel {
+                display: flex;
+            }
+        }
+
+        /* LIGHT: Sol panel */
+        body.light .left-panel {
+            background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%) !important;
+            color: white;
+        }
+
+        /* DARK: Sol panel */
+        body.dark .left-panel {
+            background: radial-gradient(circle, rgba(0, 21, 255, 1) 0%, rgba(37, 92, 13, 1) 100%) !important;
+            color: white;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            top: -80px;
+            right: -80px;
+            opacity: 0.15;
+        }
+
+        body.light .left-panel::before {
+            background: white;
+        }
+
+        body.dark .left-panel::before {
+            background: #818cf8;
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            bottom: -40px;
+            left: -40px;
+            opacity: 0.1;
+        }
+
+        body.light .left-panel::after {
+            background: white;
+        }
+
+        body.dark .left-panel::after {
+            background: #c4b5fd;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        body.light .brand-icon {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        body.dark .brand-icon {
+            background: rgba(129, 140, 248, 0.3);
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        body.light .brand-name {
+            color: white;
+        }
+
+        body.dark .brand-name {
+            color: #e0e7ff;
+        }
+
+        .left-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .left-content h2 {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 16px;
+        }
+
+        body.light .left-content h2 {
+            color: white;
+        }
+
+        body.dark .left-content h2 {
+            color: #e0e7ff;
+        }
+
+        .left-content p {
+            font-size: 14px;
+            line-height: 1.7;
+            opacity: 0.85;
+        }
+
+        body.light .left-content p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        body.dark .left-content p {
+            color: #c7d2fe;
+        }
+
+        .features {
+            margin-top: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        body.light .feature-item {
+            color: white;
+        }
+
+        body.dark .feature-item {
+            color: #c7d2fe;
+        }
+
+        .feature-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        body.light .feature-dot {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        body.dark .feature-dot {
+            background: #818cf8;
+        }
+
+        .left-footer {
+            font-size: 11px;
+            opacity: 0.55;
+            position: relative;
+            z-index: 1;
+        }
+
+        body.light .left-footer {
+            color: white;
+        }
+
+        body.dark .left-footer {
+            color: #a5b4fc;
+        }
+
+        /* ── Sağ Panel ── */
+        .right-panel {
+            flex: 1;
+            padding: 44px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            transition: background 0.4s ease;
+        }
+
+        body.light .right-panel {
+            background: white;
+        }
+
+        body.dark .right-panel {
+            background: #1e293b;
+        }
+
+        /* ── Dark Mode Toggle ── */
+        .dark-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            outline: none;
+            display: flex;
+            align-items: center;
+            padding: 0 3px;
+        }
+
+        body.light .dark-toggle {
+            background: #e2e8f0;
+        }
+
+        body.dark .dark-toggle {
+            background: #6366f1;
+        }
+
+        .dark-toggle-circle {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+
+        body.light .dark-toggle-circle {
+            background: white;
+            transform: translateX(0);
+        }
+
+        body.dark .dark-toggle-circle {
+            background: white;
+            transform: translateX(20px);
+        }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid transparent;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        body.light .tabs {
+            border-color: #f1f5f9;
+        }
+
+        body.dark .tabs {
+            border-color: #334155;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding-bottom: 14px;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        body.light .tab-btn {
+            color: #94a3b8;
+        }
+
+        body.dark .tab-btn {
+            color: #64748b;
+        }
+
+        body.light .tab-btn.active {
+            color: #6366f1;
+        }
+
+        body.dark .tab-btn.active {
+            color: #818cf8;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            border-radius: 2px;
+        }
+
+        body.light .tab-btn.active::after {
+            background: #6366f1;
+        }
+
+        body.dark .tab-btn.active::after {
+            background: #818cf8;
+        }
+
+        /* ── Form Title ── */
+        .form-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        body.light .form-title {
+            color: #1e293b;
+        }
+
+        body.dark .form-title {
+            color: #f1f5f9;
+        }
+
+        .form-sub {
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        body.light .form-sub {
+            color: #94a3b8;
+        }
+
+        body.dark .form-sub {
+            color: #64748b;
+        }
+
+        /* ── Inputs ── */
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        body.light .input-label {
+            color: #64748b;
+        }
+
+        body.dark .input-label {
+            color: #94a3b8;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap i.fa-icon-left {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        body.light .input-wrap i.fa-icon-left {
+            color: #cbd5e1;
+        }
+
+        body.dark .input-wrap i.fa-icon-left {
+            color: #475569;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+            border: 1.5px solid transparent;
+        }
+
+        body.light .input-field {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        body.dark .input-field {
+            background: #0f172a;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+
+        body.light .input-field:focus {
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        body.dark .input-field:focus {
+            border-color: #495bfc;
+            background: #1e293b;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15);
+        }
+
+        body.light .input-field::placeholder {
+            color: #cbd5e1;
+        }
+
+        body.dark .input-field::placeholder {
+            color: #475569;
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        body.light .eye-btn {
+            color: #cbd5e1;
+        }
+
+        body.dark .eye-btn {
+            color: #475569;
+        }
+
+        .eye-btn:hover {
+            color: #6366f1 !important;
+        }
+
+        /* ── Password strength ── */
+        .pw-strength {
+            margin-top: 6px;
+            height: 3px;
+            border-radius: 3px;
+            transition: all 0.3s;
+            background: #e2e8f0;
+        }
+
+        .pw-strength-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .pw-hint {
+            font-size: 10px;
+            margin-top: 4px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        body.light .pw-hint {
+            color: #94a3b8;
+        }
+
+        body.dark .pw-hint {
+            color: #64748b;
+        }
+
+        /* ── Forgot ── */
+        .forgot-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+            margin-top: -6px;
+        }
+
+        .forgot-link {
+            font-size: 12px;
+            font-weight: 700;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        body.light .forgot-link {
+            color: #6366f1;
+        }
+
+        body.dark .forgot-link {
+            color: #818cf8;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Submit Button ── */
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            margin-top: 4px;
+        }
+
+        body.light .btn-primary {
+            background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%) !important;
+            color: white;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        body.dark .btn-primary {
+            background: radial-gradient(circle, rgba(0, 21, 255, 1) 0%, rgba(37, 92, 13, 1) 100%) !important;
+            color: white;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            opacity: 0.93;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* ── Divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 18px 0;
+            font-size: 12px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+        }
+
+        body.light .divider-line {
+            background: #f1f5f9;
+        }
+
+        body.dark .divider-line {
+            background: #334155;
+        }
+
+        body.light .divider span {
+            color: #cbd5e1;
+        }
+
+        body.dark .divider span {
+            color: #475569;
+        }
+
+        /* ── Social Buttons ── */
+        .social-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 11px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1.5px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        body.light .btn-social.github {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
+        }
+
+        body.dark .btn-social.github {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        body.light .btn-social.google {
+            background: white;
+            color: #475569;
+            border-color: #e2e8f0;
+        }
+
+        body.dark .btn-social.google {
+            background: #0f172a;
+            color: #94a3b8;
+            border-color: #334155;
+        }
+
+        .btn-social:hover {
+            transform: translateY(-1px);
+            opacity: 0.88;
+        }
+
+        /* ── Error / Success Messages ── */
+        .msg-box {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .msg-box.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            display: flex;
+        }
+
+        .msg-box.success {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+            display: flex;
+        }
+
+        body.dark .msg-box.error {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        body.dark .msg-box.success {
+            background: rgba(22, 163, 74, 0.1);
+            border-color: rgba(22, 163, 74, 0.3);
+        }
+
+        .msg-box.hidden {
+            display: none !important;
+        }
+
+        /* ── Form sections ── */
+        #login-section,
+        #register-section {
+            display: none;
+        }
+
+        #login-section.active,
+        #register-section.active {
+            display: block;
+        }
+
+        /* ── Checkbox ── */
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .remember-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #6366f1;
+            cursor: pointer;
+        }
+
+        .remember-row label {
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        body.light .remember-row label {
+            color: #64748b;
+        }
+
+        body.dark .remember-row label {
+            color: #94a3b8;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            background: #1e293b;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(60px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            body {
+                padding: 14px;
+            }
+
+            .login-card {
+                max-width: 860px;
+                min-height: 540px;
+            }
+
+            .left-panel {
+                width: 42%;
+                padding: 40px 30px;
+            }
+
+            .right-panel {
+                padding: 36px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: stretch;
+            }
+
+            .login-card {
+                min-height: calc(100vh - 20px);
+                border-radius: 20px;
+            }
+
+            .left-panel {
+                display: none !important;
+            }
+
+            .right-panel {
+                width: 100%;
+                padding: 60px 22px 24px;
+                justify-content: flex-start;
+            }
+
+            .dark-toggle {
+                top: 14px;
+                right: 14px;
+            }
+
+            .tabs {
+                margin-top: 4px;
+            }
+
+            #toast {
+                right: 12px;
+                left: 12px;
+                bottom: 14px;
+                width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+
+            .login-card {
+                min-height: 100vh;
+                border-radius: 0;
+                max-width: 100%;
+            }
+
+            .right-panel {
+                padding: 58px 16px 18px;
+            }
+
+            .social-row {
+                flex-direction: column;
+            }
+
+            .btn-social,
+            .btn-primary,
+            .input-field {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body class="light" id="body-root">
+
+    <div class="login-card">
+
+        <!-- ── Sol Panel ── -->
+        <div class="left-panel">
+            <div class="brand">
+                <div class="brand-icon">⚡</div>
+                <span class="brand-name">Threello Pro</span>
+            </div>
+
+            <div class="left-content">
+                <h2>Projelerini birlikte yönetin.</h2>
+                <p>Kanban panoları, takvim görünümü ve takım yönetimiyle hiçbir görevi kaçırma.</p>
+                <div class="features">
+                    <div class="feature-item"><span class="feature-dot"></span>Sürükle-bırak görev yönetimi</div>
+                    <div class="feature-item"><span class="feature-dot"></span>Takvim & yaklaşan görünümleri</div>
+                    <div class="feature-item"><span class="feature-dot"></span>Takım üyesi ekleme & atama</div>
+                    <div class="feature-item"><span class="feature-dot"></span>Deadline bildirimleri</div>
+                </div>
+            </div>
+
+            <div class="left-footer">© 2026 Threello Pro — Akademik Proje Sistemi</div>
+        </div>
+
+        <!-- ── Sağ Panel ── -->
+        <div class="right-panel">
+
+            <!-- Dark Mode Toggle -->
+            <button class="dark-toggle" onclick="toggleDark()" title="Tema değiştir">
+                <span class="dark-toggle-circle" id="toggle-icon">☀️</span>
+            </button>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Giriş Yap</button>
+                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Üye Ol</button>
+            </div>
+
+            <!-- Hata / Başarı mesajı -->
+            <div class="msg-box hidden" id="msg-box">
+                <i class="fa-solid fa-circle-info"></i>
+                <span id="msg-text"></span>
+            </div>
+
+            <!-- ══ GİRİŞ FORMU ══ -->
+            <div id="login-section" class="active">
+                <p class="form-title">Hoş Geldiniz!</p>
+                <p class="form-sub">Hesabınıza giriş yapın.</p>
+
+                <form id="login-form" onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <label class="input-label">Kullanıcı Adı</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-user fa-icon-left"></i>
+                            <input type="text" class="input-field" id="l-username" placeholder="kullaniciadi" required
+                                autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Şifre</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock fa-icon-left"></i>
+                            <input type="password" class="input-field" id="l-password" placeholder="••••••••" required
+                                autocomplete="current-password">
+                            <button type="button" class="eye-btn" onclick="toggleEye('l-password', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="remember-row">
+                        <input type="checkbox" id="remember-me">
+                        <label for="remember-me">Beni hatırla</label>
+                    </div>
+
+                    <div class="forgot-row">
+                        <button type="button" class="forgot-link" onclick="handleForgot()">Şifremi unuttum?</button>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Giriş Yap</button>
+                </form>
+
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span>veya</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="social-row">
+                    <button class="btn-social github"
+                        onclick="showMsg('error', 'GitHub entegrasyonu yakında aktif olacak.')">
+                        <i class="fa-brands fa-github"></i> GitHub
+                    </button>
+                    <button class="btn-social google"
+                        onclick="showMsg('error', 'Google entegrasyonu yakında aktif olacak.')">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="16" alt="G"> Google
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ KAYIT FORMU ══ -->
+            <div id="register-section">
+                <p class="form-title">Hesap Oluştur</p>
+                <p class="form-sub">Hemen üye olun, ücretsizdir.</p>
+
+                <form id="register-form" onsubmit="handleRegister(event)">
+                    <div class="input-group">
+                        <label class="input-label">Kullanıcı Adı</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-user fa-icon-left"></i>
+                            <input type="text" class="input-field" id="r-username" placeholder="kullaniciadi" required
+                                autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">E-posta</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-envelope fa-icon-left"></i>
+                            <input type="email" class="input-field" id="r-email" placeholder="ornek@mail.com" required
+                                autocomplete="email">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Şifre</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock fa-icon-left"></i>
+                            <input type="password" class="input-field" id="r-password" placeholder="Min. 8 karakter"
+                                required oninput="checkStrength(this.value)" autocomplete="new-password">
+                            <button type="button" class="eye-btn" onclick="toggleEye('r-password', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="pw-strength">
+                            <div class="pw-strength-bar" id="pw-bar"></div>
+                        </div>
+                        <p class="pw-hint" id="pw-hint">En az 8 karakter, büyük harf ve rakam içermeli.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Şifre Tekrar</label>
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock fa-icon-left"></i>
+                            <input type="password" class="input-field" id="r-password2"
+                                placeholder="Şifreyi tekrar girin" required autocomplete="new-password">
+                            <button type="button" class="eye-btn" onclick="toggleEye('r-password2', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Üye Ol</button>
+                </form>
+
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span>veya</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <div class="social-row">
+                    <button class="btn-social github"
+                        onclick="showMsg('error', 'GitHub entegrasyonu yakında aktif olacak.')">
+                        <i class="fa-brands fa-github"></i> GitHub ile Kaydol
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        // ── Theme ──────────────────────────────────────────────────
+        function applyTheme(mode) {
+            document.body.className = mode;
+            document.getElementById('toggle-icon').textContent = mode === 'dark' ? '🌙' : '☀️';
+            localStorage.setItem('tp_theme', mode);
+        }
+
+        function toggleDark() {
+            const isDark = document.body.classList.contains('dark');
+            applyTheme(isDark ? 'light' : 'dark');
+        }
+
+        // ── Tab Switch ─────────────────────────────────────────────
+        function switchTab(tab) {
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', tab !== 'login');
+            document.getElementById('login-section').classList.toggle('active', tab === 'login');
+            document.getElementById('register-section').classList.toggle('active', tab !== 'login');
+            hideMsg();
+        }
+
+        // ── Toggle Eye ─────────────────────────────────────────────
+        function toggleEye(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isPass = input.type === 'password';
+            input.type = isPass ? 'text' : 'password';
+            btn.querySelector('i').className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        }
+
+        // ── Password Strength ──────────────────────────────────────
+        function checkStrength(pw) {
+            const bar = document.getElementById('pw-bar');
+            const hint = document.getElementById('pw-hint');
+            const strong = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+            const medium = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+            if (pw.length === 0) {
+                bar.style.width = '0%'; bar.style.background = '';
+                hint.style.color = ''; hint.textContent = 'En az 8 karakter, büyük harf ve rakam içermeli.';
+            } else if (strong.test(pw)) {
+                bar.style.width = '100%'; bar.style.background = '#22c55e';
+                hint.style.color = '#22c55e'; hint.textContent = '💪 Güçlü şifre!';
+            } else if (medium.test(pw)) {
+                bar.style.width = '65%'; bar.style.background = '#f59e0b';
+                hint.style.color = '#f59e0b'; hint.textContent = '⚡ Orta güçlü. Özel karakter ekleyin.';
+            } else {
+                bar.style.width = '30%'; bar.style.background = '#ef4444';
+                hint.style.color = '#ef4444'; hint.textContent = '⚠️ Zayıf şifre. Büyük harf ve rakam ekleyin.';
+            }
+        }
+
+        // ── Messages ───────────────────────────────────────────────
+        function showMsg(type, text) {
+            const box = document.getElementById('msg-box');
+            const span = document.getElementById('msg-text');
+            box.className = 'msg-box ' + type;
+            span.textContent = text;
+        }
+        function hideMsg() {
+            document.getElementById('msg-box').className = 'msg-box hidden';
+        }
+
+        // ── Toast ──────────────────────────────────────────────────
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        // ── Forgot Password ────────────────────────────────────────
+        function handleForgot() {
+            showMsg('error', 'E-posta adresinizi kayıt formunda girin, destek ile iletişime geçin.');
+        }
+
+        // ── LOGIN ──────────────────────────────────────────────────
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideMsg();
+
+            const username = document.getElementById('l-username').value.trim();
+            const password = document.getElementById('l-password').value;
+            let user = null;
+            try {
+                const response = await fetch('auth_login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    showMsg('error', `❌ ${result.message || 'Kullanici adi veya sifre hatali!'}`);
+                    return;
+                }
+                user = result.user;
+            } catch (_) {
+                showMsg('error', '❌ Sunucuya ulasilamadi. XAMPP Apache/MySQL acik mi kontrol edin.');
+                return;
+            }
+
+            // Beni hatırla
+            if (document.getElementById('remember-me').checked) {
+                localStorage.setItem('tp_remember', username);
+            }
+
+            // Aktif kullanıcıyı sessionStorage'a kaydet
+            sessionStorage.setItem('tp_current_user', JSON.stringify({
+                username: user.username,
+                email: user.email,
+                color: user.color || '#6366f1'
+            }));
+
+            showToast(`👋 Hoş geldin, ${user.username}!`);
+            setTimeout(() => { window.location.href = 'index.html'; }, 800);
+        }
+
+        // ── REGISTER ───────────────────────────────────────────────
+        async function handleRegister(e) {
+            e.preventDefault();
+            hideMsg();
+
+            const username = document.getElementById('r-username').value.trim();
+            const email = document.getElementById('r-email').value.trim().toLowerCase();
+            const password = document.getElementById('r-password').value;
+            const password2 = document.getElementById('r-password2').value;
+
+            if (password !== password2) {
+                showMsg('error', '⚠️ Şifreler eşleşmiyor!');
+                return;
+            }
+
+            const mediumPw = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+            if (!mediumPw.test(password)) {
+                showMsg('error', '⚠️ Şifre en az 8 karakter, 1 büyük harf ve 1 rakam içermeli!');
+                return;
+            }
+
+            let user = null;
+            try {
+                const response = await fetch('auth_register.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    showMsg('error', `⚠️ ${result.message || 'Kayit basarisiz!'}`);
+                    return;
+                }
+                user = result.user;
+            } catch (_) {
+                showMsg('error', '❌ Sunucuya ulasilamadi. XAMPP Apache/MySQL acik mi kontrol edin.');
+                return;
+            }
+
+            showMsg('success', '✅ Hesap oluşturuldu! Giriş yapılıyor...');
+
+            sessionStorage.setItem('tp_current_user', JSON.stringify(user));
+            await syncUsersToLocalStorage();
+            setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        }
+
+        async function syncUsersToLocalStorage() {
+            try {
+                const response = await fetch('auth_users.php');
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    localStorage.setItem('tp_users', JSON.stringify(result.users || []));
+                }
+            } catch (_) {
+                // Sessiz gec: uygulama bu noktada yine calisabilir.
+            }
+        }
+
+        // ── Init ───────────────────────────────────────────────────
+        (async function init() {
+            // Tema
+            const savedTheme = localStorage.getItem('tp_theme') || 'light';
+            applyTheme(savedTheme);
+
+            // Beni hatırla
+            const remembered = localStorage.getItem('tp_remember');
+            if (remembered) {
+                document.getElementById('l-username').value = remembered;
+                document.getElementById('remember-me').checked = true;
+            }
+
+            // Zaten giriş yapmışsa direkt yönlendir
+            if (sessionStorage.getItem('tp_current_user')) {
+                window.location.href = 'index.html';
+            }
+            await syncUsersToLocalStorage();
+        })();
+    </script>
+</body>
+
+</html>
